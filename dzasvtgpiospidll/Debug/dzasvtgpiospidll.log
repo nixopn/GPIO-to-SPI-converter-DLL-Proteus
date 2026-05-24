@@ -1,0 +1,4 @@
+﻿  GPIO_SPI_Converter.cpp
+  LINK : не найден или не выполнена сборка C:\Users\eisne\Downloads\i3000\i3000\dzasvtgpiospidll\Debug\dzasvtgpiospidll.dll при последней инкрементной компоновке; выполняется полная компоновка
+     Создается библиотека C:\Users\eisne\Downloads\i3000\i3000\dzasvtgpiospidll\Debug\dzasvtgpiospidll.lib и объект C:\Users\eisne\Downloads\i3000\i3000\dzasvtgpiospidll\Debug\dzasvtgpiospidll.exp
+  dzasvtgpiospidll.vcxproj -> C:\Users\eisne\Downloads\i3000\i3000\dzasvtgpiospidll\Debug\dzasvtgpiospidll.dll
