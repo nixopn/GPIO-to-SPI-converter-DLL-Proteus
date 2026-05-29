@@ -11,12 +11,12 @@
       "RelativeMoniker": "D:0:0:{634F4501-384D-40A1-9857-538A882FF8DE}|dzasvtgpiospidll\\dzasvtgpiospidll.vcxproj|solutionrelative:dzasvtgpiospidll\\GPIO_SPI_Converter.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{634F4501-384D-40A1-9857-538A882FF8DE}|dzasvtgpiospidll\\dzasvtgpiospidll.vcxproj|C:\\Users\\eisne\\Downloads\\i3000\\i3000\\dzasvtgpiospidll\\dzasvtgpiospidll\\pch.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{634F4501-384D-40A1-9857-538A882FF8DE}|dzasvtgpiospidll\\dzasvtgpiospidll.vcxproj|solutionrelative:dzasvtgpiospidll\\pch.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{634F4501-384D-40A1-9857-538A882FF8DE}|dzasvtgpiospidll\\dzasvtgpiospidll.vcxproj|C:\\Users\\eisne\\Downloads\\i3000\\i3000\\dzasvtgpiospidll\\dzasvtgpiospidll\\dllmain.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{634F4501-384D-40A1-9857-538A882FF8DE}|dzasvtgpiospidll\\dzasvtgpiospidll.vcxproj|solutionrelative:dzasvtgpiospidll\\dllmain.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{634F4501-384D-40A1-9857-538A882FF8DE}|dzasvtgpiospidll\\dzasvtgpiospidll.vcxproj|C:\\Users\\eisne\\Downloads\\i3000\\i3000\\dzasvtgpiospidll\\dzasvtgpiospidll\\pch.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{634F4501-384D-40A1-9857-538A882FF8DE}|dzasvtgpiospidll\\dzasvtgpiospidll.vcxproj|solutionrelative:dzasvtgpiospidll\\pch.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -36,7 +36,7 @@
               "RelativeDocumentMoniker": "dzasvtgpiospidll\\GPIO_SPI_Converter.h",
               "ToolTip": "C:\\Users\\eisne\\Downloads\\i3000\\i3000\\dzasvtgpiospidll\\dzasvtgpiospidll\\GPIO_SPI_Converter.h",
               "RelativeToolTip": "dzasvtgpiospidll\\GPIO_SPI_Converter.h",
-              "ViewState": "AgIAACwAAAAAAAAAAAAQwB4AAAAGAAAAAAAAAA==",
+              "ViewState": "AgIAAC8AAAAAAAAAAAAQwA8AAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2026-05-17T10:42:32.048Z",
               "EditorCaption": ""
@@ -49,14 +49,14 @@
               "RelativeDocumentMoniker": "dzasvtgpiospidll\\GPIO_SPI_Converter.cpp",
               "ToolTip": "C:\\Users\\eisne\\Downloads\\i3000\\i3000\\dzasvtgpiospidll\\dzasvtgpiospidll\\GPIO_SPI_Converter.cpp",
               "RelativeToolTip": "dzasvtgpiospidll\\GPIO_SPI_Converter.cpp",
-              "ViewState": "AgIAAEoBAAAAAAAAAAAAAF8BAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-05-06T15:55:04.437Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "pch.cpp",
               "DocumentMoniker": "C:\\Users\\eisne\\Downloads\\i3000\\i3000\\dzasvtgpiospidll\\dzasvtgpiospidll\\pch.cpp",
               "RelativeDocumentMoniker": "dzasvtgpiospidll\\pch.cpp",
@@ -68,13 +68,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "dllmain.cpp",
               "DocumentMoniker": "C:\\Users\\eisne\\Downloads\\i3000\\i3000\\dzasvtgpiospidll\\dzasvtgpiospidll\\dllmain.cpp",
               "RelativeDocumentMoniker": "dzasvtgpiospidll\\dllmain.cpp",
               "ToolTip": "C:\\Users\\eisne\\Downloads\\i3000\\i3000\\dzasvtgpiospidll\\dzasvtgpiospidll\\dllmain.cpp",
               "RelativeToolTip": "dzasvtgpiospidll\\dllmain.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwA0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-05-06T09:57:50.961Z"
             }

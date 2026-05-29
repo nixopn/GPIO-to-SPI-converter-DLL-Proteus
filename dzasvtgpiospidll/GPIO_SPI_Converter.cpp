@@ -4,14 +4,17 @@
 
 GPIO_SPI_Converter::GPIO_SPI_Converter()
     : m_instance(nullptr), m_ckt(nullptr), m_CLK(nullptr), m_MODE(nullptr), m_MOSI_STROBE(nullptr), m_CS(nullptr),
-      m_RST(nullptr), m_INT(nullptr), m_SPI_SCLK(nullptr), m_SPI_MOSI(nullptr), m_SPI_MISO(nullptr), //m_SPI_CS(nullptr),
+      m_RST(nullptr), m_INT(nullptr), m_SPI_SCLK(nullptr), m_SPI_MOSI(nullptr),
+      m_SPI_MISO(nullptr), //m_SPI_CS(nullptr),
       m_txData(0), m_rxData(0), m_rxReady(FALSE), m_spiEnable(TRUE), m_intEnable(FALSE), m_spiClkDiv(0), m_spiMode(0),
       m_spiClkCounter(0), m_shiftReg(0), m_bitCount(0), m_spiBusy(FALSE), m_prevSPIClock(FALSE), m_prevCLK(FALSE),
-      m_currentTime(0), m_byteCount(0), m_multiByte(0) {
+      m_currentTime(0), m_byteCount(0), m_multiByte(0), m_csConfig(0) {
+    m_originalMultiByte = 0;
     m_originalTxData = 0;
     m_A0 = nullptr;
     m_A1 = nullptr;
     m_A2 = nullptr;
+    m_myAddr = 0;
     for (int i = 0; i < 8; i++) m_SPI_CS[i] = nullptr;
     m_deviceAddr = 0;
     for (int i = 0; i < 8; i++) {
@@ -64,8 +67,8 @@ VOID GPIO_SPI_Converter::setup(IINSTANCE* instance, IDSIMCKT* dsim) {
     m_SPI_MOSI = (IDSIMPIN2*) instance->getdsimpin(spi_mosi, TRUE);
     m_SPI_MISO = (IDSIMPIN2*) instance->getdsimpin(spi_miso, TRUE);
     //m_SPI_CS = (IDSIMPIN2*) instance->getdsimpin(spi_cs, TRUE);
-    
-    
+
+
     char A0[] = "A0";
     char A1[] = "A1";
     char A2[] = "A2";
@@ -73,7 +76,7 @@ VOID GPIO_SPI_Converter::setup(IINSTANCE* instance, IDSIMCKT* dsim) {
     m_A1 = (IDSIMPIN2*) instance->getdsimpin(A1, TRUE);
     m_A2 = (IDSIMPIN2*) instance->getdsimpin(A2, TRUE);
 
-    
+
     CHAR nameer[8];
     for (int i = 0; i < 8; i++) {
         sprintf(nameer, "SPI_CS%d", i);
@@ -81,7 +84,7 @@ VOID GPIO_SPI_Converter::setup(IINSTANCE* instance, IDSIMCKT* dsim) {
         if (m_SPI_CS[i]) {
             m_SPI_CS[i]->settiming(details::DELAY, details::DELAY, details::DELAY);
             m_SPI_CS[i]->setstates(SHI, SLO, FLT);
-            m_SPI_CS[i]->setstate(SHI); 
+            m_SPI_CS[i]->setstate(SHI);
         }
     }
     if (m_SPI_SCLK) {
@@ -138,9 +141,14 @@ VOID GPIO_SPI_Converter::simulate(ABSTIME time, DSIMMODES mode) {
         BOOL strobeActive = ishigh(m_MOSI_STROBE->istate());
 
 
-        if (m_A0 && m_A1 && m_A2) {
-            m_deviceAddr = (ishigh(m_A0->istate()) ? 4 : 0) | (ishigh(m_A1->istate()) ? 2 : 0)| (ishigh(m_A2->istate()) ? 1 : 0);
-        }
+        //if (m_A0 && m_A1 && m_A2) {
+        //    m_deviceAddr = (ishigh(m_A0->istate()) ? 4 : 0) | (ishigh(m_A1->istate()) ? 2 : 0)
+        //                   | (ishigh(m_A2->istate()) ? 1 : 0);
+        //}
+        BYTE targetAddr = 0;
+        if (m_A0 && ishigh(m_A0->istate())) targetAddr |= 1;
+        if (m_A1 && ishigh(m_A1->istate())) targetAddr |= 2;
+        if (m_A2 && ishigh(m_A2->istate())) targetAddr |= 4;
 
         if (configMode) {
             BYTE input = readDI();
@@ -153,6 +161,11 @@ VOID GPIO_SPI_Converter::simulate(ABSTIME time, DSIMMODES mode) {
                 writeDO(cfgData);
             }
         } else if (strobeActive && !m_spiBusy) {
+            if (targetAddr != m_myAddr) {
+                // Не наш адрес — игнорируем
+                m_prevCLK = clkHigh;
+                return;
+            }
             m_txData = readDI();
             m_rxReady = FALSE;
             startSPI();
@@ -183,7 +196,6 @@ VOID GPIO_SPI_Converter::simulate(ABSTIME time, DSIMMODES mode) {
 }
 
 
-
 VOID GPIO_SPI_Converter::callback(ABSTIME time, EVENTID eventid) {}
 
 VOID GPIO_SPI_Converter::resetDevice() {
@@ -199,6 +211,7 @@ VOID GPIO_SPI_Converter::resetDevice() {
     m_txData = 0;
     m_rxData = 0;
     m_spiClkCounter = 0;
+    m_csConfig = 0;
     /*if (m_SPI_CS) m_SPI_CS->setstate(m_currentTime, details::DELAY, SHI);*/
     for (int i = 0; i < 8; i++) {
         if (m_SPI_CS[i]) m_SPI_CS[i]->setstate(m_currentTime, details::DELAY, SHI);
@@ -226,6 +239,23 @@ VOID GPIO_SPI_Converter::processConfig(BYTE addr, BYTE data) {
         case 0x03:
             m_multiByte = data & 0x03;
             break;
+        //case 0x04:
+        //    m_csConfig = data & 0x07;
+        //    updateSPICS();
+        //    break;
+        case 0x05:
+            m_myAddr = data & 0x07;
+            break;
+        case 0x06:
+            // Младшая тетрада CS0-CS3
+            m_csConfig = (m_csConfig & 0xF0) | (data & 0x0F);
+            updateSPICS();
+            break;
+        case 0x07:
+            // Старшая тетрада CS4-CS7
+            m_csConfig = (m_csConfig & 0x0F) | ((data & 0x0F) << 4);
+            updateSPICS();
+            break;
     }
 }
 
@@ -239,6 +269,14 @@ BYTE GPIO_SPI_Converter::readConfig(BYTE addr) {
             return m_spiMode;
         case 0x03:
             return m_multiByte & 0x03;
+        //case 0x04:
+        //    return m_csConfig & 0x07;
+        case 0x05:
+            return m_myAddr & 0x07;
+        case 0x06:
+            return m_csConfig & 0x0F; 
+        case 0x07:
+            return (m_csConfig >> 4) & 0x0F; 
         default:
             return 0;
     }
@@ -276,19 +314,33 @@ VOID GPIO_SPI_Converter::startSPI() {
     m_prevSPIClock = FALSE;
     m_firstSPIClock = FALSE;
     m_spiClkCounter = 0;
+    m_originalMultiByte = m_multiByte;
+
+    BYTE csCount = countActiveCS();
+    if (csCount > 1) {
+        m_multiByte += (csCount - 1);
+    }
 
     CHAR buf[64];
     sprintf(buf, "startSPI: txData=0x%02X", m_txData);
     m_instance->log(buf);
 
     /*if (m_SPI_CS) m_SPI_CS->setstate(m_currentTime, details::DELAY, SLO);*/
-   
+
     for (int i = 0; i < 8; i++) {
         if (m_SPI_CS[i]) m_SPI_CS[i]->setstate(m_currentTime, details::DELAY, SHI);
     }
 
-    if (m_SPI_CS[m_deviceAddr]) {
-        m_SPI_CS[m_deviceAddr]->setstate(m_currentTime, details::DELAY, SLO);
+    //if (m_SPI_CS[m_deviceAddr]) {
+    //    m_SPI_CS[m_deviceAddr]->setstate(m_currentTime, details::DELAY, SLO);
+    //}
+    //if (m_csConfig < 8 && m_SPI_CS[m_csConfig]) {
+    //    m_SPI_CS[m_csConfig]->setstate(m_currentTime, details::DELAY, SLO);
+    //}
+    for (int i = 0; i < 8; i++) {
+        if (m_SPI_CS[i]) {
+            m_SPI_CS[i]->setstate(m_currentTime, details::DELAY, (m_csConfig & (1 << i)) ? SLO : SHI);
+        }
     }
     if (m_SPI_SCLK) m_SPI_SCLK->setstate(m_currentTime, details::DELAY, SLO);
     if (m_SPI_MOSI) m_SPI_MOSI->setstate(m_currentTime, details::DELAY, (m_shiftReg >> 7) ? SHI : SLO);
@@ -320,6 +372,7 @@ VOID GPIO_SPI_Converter::handleSPI() {
                 writeDO(m_rxData);
                 m_byteCount = 0;
                 m_bitCount = 0;
+                m_multiByte = m_originalMultiByte;
                 return;
             } else {
                 m_shiftReg = m_originalTxData;
@@ -339,6 +392,31 @@ VOID GPIO_SPI_Converter::handleSPI() {
     char buf[64];
     sprintf(buf, "SPI done: rxData=0x%02X", m_rxData);
     m_instance->log(buf);
+}
+
+VOID GPIO_SPI_Converter::updateSPICS() {
+    //for (int i = 0; i < 8; i++) {
+    //    if (m_SPI_CS[i]) {
+    //        m_SPI_CS[i]->setstate(m_currentTime, details::DELAY, SHI);
+    //    }
+    //    if (!m_spiBusy && m_csConfig < 8 && m_SPI_CS[m_csConfig]) {
+    //        m_SPI_CS[m_csConfig]->setstate(m_currentTime, details::DELAY, SLO);
+    //    }
+    //}
+    for (int i = 0; i < 8; i++) {
+        if (m_SPI_CS[i]) {
+            m_SPI_CS[i]->setstate(m_currentTime, details::DELAY, (m_csConfig & (1 << i)) ? SLO : SHI);
+        }
+    }
+}
+
+
+BYTE GPIO_SPI_Converter::countActiveCS() {
+    BYTE count = 0;
+    for (int i = 0; i < 8; i++) {
+        if (m_csConfig & (1 << i)) count++;
+    }
+    return count;
 }
 
 extern "C" {
